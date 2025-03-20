@@ -177,20 +177,17 @@ def default_transforms(
     transforms_to_apply += [
         # A.ToFloat(),
         # anything outside of the original image is set to 0.
-        A.Rotate(limit=180, interpolation=1,
-                    always_apply=True, border_mode=0, value=0),
+        A.Rotate(limit=180, interpolation=1, border_mode=0, fill=0),
         A.RandomResizedCrop(
-            height=resize_after_crop,  # after crop resize
-            width=resize_after_crop,
+            size=(resize_after_crop,resize_after_crop),  # after crop resize
             scale=crop_scale_bounds,  # crop factor
             ratio=crop_ratio_bounds,  # crop aspect ratio
             interpolation=1,  # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
-            always_apply=True
         ),  # new aspect ratio
         A.VerticalFlip(p=0.5)
     ]
     if to_float:
-        transforms_to_apply += [A.ToFloat(max_value=255.0, always_apply=True)]
+        transforms_to_apply += [A.ToFloat(max_value=255.0)]
 
     return A.Compose(transforms_to_apply)
 
@@ -205,8 +202,7 @@ def minimal_transforms(
     transforms_to_apply += [
         A.CenterCrop(
             height=resize_after_crop,
-            width=resize_after_crop,
-            always_apply=True
+            width=resize_after_crop
         )
     ]
     return A.Compose(transforms_to_apply)
@@ -227,8 +223,7 @@ def fast_transforms(
     transforms_to_apply += [
     #     A.RandomCrop(
     #         height=resize_after_crop,
-    #         width=resize_after_crop,
-    #         always_apply=True
+    #         width=resize_after_crop
     #     ),
         A.Flip(),
         A.RandomRotate90()
@@ -240,12 +235,12 @@ def base_transforms(pytorch_greyscale):
     if pytorch_greyscale:
         return [
             A.Lambda(
-                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
+                name="ToGray", image=ToGray(reduce_channels=True)
             )
         ]
     else:
        return [
-            A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+            A.Lambda(name="RemoveAlpha", image=RemoveAlpha())
         ]
         
 
@@ -303,13 +298,13 @@ def astroaugmentation_transforms(
     from albumentations.pytorch import ToTensorV2  # also required pytorch
 
     transforms_to_apply = [
-        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+        A.Lambda(name="RemoveAlpha", image=RemoveAlpha())
     ]
 
     if pytorch_greyscale:
         transforms_to_apply += [
             A.Lambda(
-                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
+                name="ToGray", image=ToGray(reduce_channels=True)
             )
         ]
 
